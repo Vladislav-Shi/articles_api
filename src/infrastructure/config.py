@@ -22,6 +22,12 @@ class Settings(BaseSettings):
 
     DEBUG: int = 1
 
+    MONGO_URL: str
+    MONGO_DB_NAME: str
+
+    RABBIT_URL: str
+    EXCHANGE_RABBIT_NAME: str
+
     service: ServiceApiModel = ServiceApiModel()
 
 

@@ -1,5 +1,5 @@
 from src.domain.models.article import Article
-from src.infrastructure.database.models import ArticleTable
+from src.infrastructure.database.postgres.models import ArticleTable
 
 
 class ArticleMapper:

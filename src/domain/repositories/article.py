@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-from src.domain.models.article import Article
 
 
 class ArticleRepository(ABC):
