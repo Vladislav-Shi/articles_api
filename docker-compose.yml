@@ -1,0 +1,65 @@
+services:
+  nir_piplines:
+     image: vladislavshi/nir_pipelines:latest
+     environment:
+       MONGO_URL: mongodb://root:example@mongo:27017/
+       RABBIT_URL: amqp://rmuser:rmpassword1213@rabbitmq:5672/
+       EXCHANGE_RABBIT_NAME: default_exchange_test
+       MONGO_DB_NAME: articles
+     networks:
+       base_network:
+         ipv4_address: 172.34.0.5
+  baceknd_predict:
+     image: vladislavshi/nir_category_backend:latest
+     networks:
+       base_network:
+         ipv4_address: 172.34.0.6
+  nir_gateway:
+     image: vladislavshi/nir_gateway:latest
+     ports:
+       - 8083:8083
+     environment:
+       MONGO_URL: mongodb://root:example@mongo:27017/
+       RABBIT_URL: amqp://rmuser:rmpassword1213@rabbitmq:5672/
+       EXCHANGE_RABBIT_NAME: default_exchange_test
+       MONGO_DB_NAME: articles
+       SERVICE__PREDICT_URL: http://baceknd_predict:8016
+     networks:
+       base_network:
+         ipv4_address: 172.34.0.7
+  nir_front:
+    image: vladislavshi/nir_gateway:latest
+    ports:
+      - 5173:80
+    networks:
+      base_network:
+        ipv4_address: 172.34.0.8
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      base_network:
+        ipv4_address: 172.34.0.3
+
+  rabbitmq:
+    image: 'rabbitmq:3.6-management-alpine'
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmuser
+      - RABBITMQ_DEFAULT_PASS=rmpassword1213
+    ports:
+      # The standard AMQP protocol port
+      - '5672:5672'
+      # HTTP management UI
+      - '15672:15672'
+    networks:
+      base_network:
+        ipv4_address: 172.34.0.2
+
+networks:
+  base_network:
+    external: true
