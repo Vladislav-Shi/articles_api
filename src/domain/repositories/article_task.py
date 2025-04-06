@@ -21,3 +21,8 @@ class ArticleTaskRepository(ABC):
     @abstractmethod
     async def list(self, offset: int, limit: int, **kwargs) -> List[ArticleTask]:
         pass
+
+    @abstractmethod
+    async def count(self) -> int:
+        """Возвращает кол-во элементов в коллекции"""
+        pass

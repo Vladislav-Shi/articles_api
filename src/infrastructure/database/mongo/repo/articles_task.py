@@ -39,3 +39,7 @@ class MongoArticleTaskRepository(ArticleTaskRepository):
         tasks = await cursor.to_list(length=limit)
         tasks = [self._replace_id_from_db(i) for i in tasks]
         return tasks
+
+    async def count(self) -> int:
+        """Возвращает кол-во элементов в коллекции"""
+        return await self.collection.count_documents({})

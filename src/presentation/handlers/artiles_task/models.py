@@ -37,7 +37,9 @@ class BasePageIterationQuery(BaseModel):
     page: int = Field(default=1, ge=1)
     size: int = Field(default=10, ge=1)
 
+class BasePageIterationResponse(BasePageIterationQuery):
+    count: int
 
 class TaskInfoListResponse(BaseModel):
-    meta: BasePageIterationQuery
+    meta: BasePageIterationResponse
     items: List[TaskInfoResponse]

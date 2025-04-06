@@ -12,7 +12,7 @@ from src.domain.repositories.article_task import ArticleTaskRepository
 from src.infrastructure.depends.events import get_rabbitmq_publisher
 from src.infrastructure.depends.repo import get_task_article_repo
 from src.presentation.handlers.artiles_task.models import BasePageIterationQuery, CreateTaskRequest, CreateTaskResponse, \
-    StatusTaskResponse, TaskInfoResponse, TaskInfoListResponse
+    StatusTaskResponse, TaskInfoResponse, TaskInfoListResponse, BasePageIterationResponse
 
 router = APIRouter(
     prefix='/task',
@@ -22,9 +22,9 @@ router = APIRouter(
 
 @router.post('')
 async def create_task_handler(
-        data: CreateTaskRequest,
-        article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
-        publisher: BasePublisher = Depends(get_rabbitmq_publisher),
+    data: CreateTaskRequest,
+    article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
+    publisher: BasePublisher = Depends(get_rabbitmq_publisher),
 ):
     try:
         task = await create_article_task(
@@ -42,8 +42,8 @@ async def create_task_handler(
 
 @router.get('/status/{task_id}')
 async def get_task_status_handler(
-        task_id: str,
-        article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
+    task_id: str,
+    article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
 ):
     try:
         task = await get_task(
@@ -62,8 +62,8 @@ async def get_task_status_handler(
 
 @router.get('/info/{task_id}')
 async def get_task_result_handler(
-        task_id: str,
-        article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
+    task_id: str,
+    article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
 
 ):
     try:
@@ -80,20 +80,23 @@ async def get_task_result_handler(
 
 @router.get('')
 async def get_task_list_handler(
-        data: Annotated[BasePageIterationQuery, Query()],
-        article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
+    data: Annotated[BasePageIterationQuery, Query()],
+    article_repo: ArticleTaskRepository = Depends(get_task_article_repo),
 ) -> TaskInfoListResponse:
     try:
-        res = await get_tasks_page(
+        service_res = await get_tasks_page(
             page=data.page,
             size=data.size,
             article_repo=article_repo
         )
-        print(res)
         ta = TypeAdapter(List[TaskInfoResponse])
-        res = ta.validate_python(res, from_attributes=True)
+        res = ta.validate_python(service_res.items, from_attributes=True)
         return TaskInfoListResponse(
-            meta=data,
+            meta=BasePageIterationResponse(
+                page=data.page,
+                count=service_res.count,
+                size=data.size
+            ),
             items=res
         )
     except Exception as e:

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from src.application.dto import ArticlesTaskList
 from src.domain.events.publisher import BasePublisher
 from src.domain.models.article_task import ArticleTask, ArticleStatusEnum
 from src.domain.repositories.article_task import ArticleTaskRepository
@@ -44,4 +45,8 @@ async def get_tasks_page(
         limit=size,
         offset=(page - 1) * size
     )
-    return res
+    count = await article_repo.count()
+    return ArticlesTaskList(
+        items=res,
+        count=count
+    )
